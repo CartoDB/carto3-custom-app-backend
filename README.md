@@ -13,25 +13,3 @@ You might use a custom backend for several reasons, including:
 In all these cases you need to take care of creating tokens to provide access to your data warehouse. This is done using the client ID - client secret pair from a machine to machine application created within the Workspace. More info [here](https://api-docs.carto.com).
 
 The examples are very simple and the main goal is to be illustrate how to retrieve and refresh tokens that are then used to make queries to the Maps API or the SQL API endpoints.
-
-## Python
-
-### Flask
-
-This example contains a simple Flask API that exposes two endpoints:
-
-- An endpoint that retrieves a GeoJSON for visualization using the Maps API query endpoint
-
-- An endpoint that executes a simple query and return the result using the SQL API query endpoint
-
-The API has been tested with Python 3.9.9. To start the API, first install the required Python packages (we recommend you to use a virtual environment):
-
-```shell
-$ pip install -r requirements.txt
-```
-
-And then execute the following command:
-
-```shell
-$ python api.py
-```
