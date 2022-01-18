@@ -18,6 +18,6 @@ The API has been tested with Python 3.9.9. To start the API:
 
 3. Execute the following command:
 
-```shell
-$ python api.py
-```
+   ```shell
+   $ python api.py
+   ```
