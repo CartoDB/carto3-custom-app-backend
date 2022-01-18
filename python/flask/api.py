@@ -63,7 +63,6 @@ def get_average_revenue():
     token = get_token()
     headers = {'authorization': 'bearer ' + token}
 
-    # First request to get the URL to GeoJSON resource 
     r = requests.get(
       os.environ.get('SQL_API_BASE_URL') + '/' +
       os.environ.get('CONNECTION_NAME') + '/' +
