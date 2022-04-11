@@ -1,0 +1,23 @@
+{
+  "name": "carto3-custom-app-backend-express",
+  "version": "1.0.0",
+  "description": "CARTO 3 custom app backend using Express",
+  "main": "api.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "carto",
+    "express"
+  ],
+  "author": "Borja Muñoz",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "dotenv": "^14.2.0",
+    "express": "^4.17.2",
+    "jsonwebtoken": "^8.5.1",
+    "jwks-rsa": "^2.0.5"
+  }
+}
