@@ -13,25 +13,44 @@
 
   <script type="text/javascript">
 
-    const deckgl = new deck.DeckGL({
-      container: 'map',
-      mapStyle: deck.carto.BASEMAP.VOYAGER,
+    async function initialize() {
+      const response = await fetch('http://127.0.0.1:5000/api/v1/token');
+      const data = await response.json();
+      deck.carto.setDefaultCredentials({
+        accessToken: data.token
+      });
 
-      initialViewState: {
-        latitude: 40,
-        longitude: -100,
-        zoom: 4,
-      },
-      controller: true,
+      const deckgl = new deck.DeckGL({
+        container: 'map',
+        mapStyle: deck.carto.BASEMAP.VOYAGER,
 
-      layers: [
-        new deck.GeoJsonLayer({
-          data: 'http://127.0.0.1:5000/api/v1/stores/all', 
-          getFillColor: [238, 77, 90],
-          pointRadiusMinPixels: 2.5
-        }),
-      ]
-    });
+        initialViewState: {
+          latitude: 40,
+          longitude: -100,
+          zoom: 4,
+        },
+        controller: true,
 
+        layers: [
+          new deck.carto.CartoLayer({
+            id: 'meteorites',
+            type: deck.carto.MAP_TYPES.TABLE,
+            connection: 'bigquery',
+            data: 'cartobq.public_account.meteorites',
+            getFillColor: [77, 238, 90],
+            pointRadiusMinPixels: 8
+          }),
+          new deck.GeoJsonLayer({
+            id: 'stores',
+            data: 'http://127.0.0.1:5000/api/v1/stores/all', 
+            getFillColor: [238, 77, 90],
+            pointRadiusMinPixels: 2.5
+          }),
+        ]
+      });
+
+    }
+
+    initialize();
   </script>
 </html>
