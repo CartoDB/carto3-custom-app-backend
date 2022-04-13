@@ -73,8 +73,8 @@ def get_all_stores():
 
 # Endpoint example to return data using the TileJSON format
 # Takes care of authentication/authorization
-@app.route('/api/v1/railroads/all', methods=['GET'])
-def get_all_railroads():
+@app.route('/api/v1/vaccination/all', methods=['GET'])
+def get_all_vaccination():
     token = get_m2m_token()  # Decorators
     headers = {'authorization': 'bearer ' + token}
 
@@ -82,7 +82,7 @@ def get_all_railroads():
     r = requests.get(
       os.environ.get('MAPS_API_BASE_URL') + '/' +
       os.environ.get('CONNECTION_NAME') + '/' +
-      'table?name=cartobq.public_account.ne_10m_railroads_public',
+      'tileset?name=carto-demo-data.demo_tilesets.covid19_vaccinated_usa_tileset',
       headers=headers
     )
     response = r.json()
