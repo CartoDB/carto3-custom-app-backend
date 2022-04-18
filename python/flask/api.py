@@ -1,4 +1,5 @@
 import os
+import functools
 
 import flask
 import jwt
@@ -29,32 +30,37 @@ def get_new_m2m_token():
     response = r.json()
     return response["access_token"]      
 
+# Decorator to retrieve the token
 # Returns a new token or an existing token if we already have one and it has not expired
-def get_m2m_token():
-    global token
-    if token is None:
-        token = get_new_m2m_token()
-    else:
-        # Check expiration
-        try:
-            jwt.decode(token, options={"verify_signature": False})
-        except jwt.ExpiredSignatureError:
+def get_m2m_token(func):
+    @functools.wraps(func)
+    def wrapper_get_m2m_token(*args, **kwargs):
+        global token
+        if token is None:
             token = get_new_m2m_token()
-    return token
+        else:
+            # Check expiration
+            try:
+                jwt.decode(token, options={"verify_signature": False})
+            except jwt.ExpiredSignatureError:
+                token = get_new_m2m_token()
+        # return token
+        return func(*args, **kwargs)
+    return wrapper_get_m2m_token
 
 # Endpoint to get a token
 # All the connections available to the user that created
 # the M2M application can be used
 @app.route('/api/v1/token', methods=['GET'])
+@get_m2m_token
 def get_token():
-    token = get_m2m_token()  # Decorators
     return jsonify({'token': token})
 
 # Endpoint example to return data using the GeoJSON format
 # Takes care of authentication/authorization
 @app.route('/api/v1/stores/all', methods=['GET'])
+@get_m2m_token
 def get_all_stores():
-    token = get_m2m_token()  # Decorators
     headers = {'authorization': 'bearer ' + token}
 
     # First request to get the URL to GeoJSON resource 
@@ -74,8 +80,8 @@ def get_all_stores():
 # Endpoint example to return data using the TileJSON format
 # Takes care of authentication/authorization
 @app.route('/api/v1/vaccination/all', methods=['GET'])
+@get_m2m_token
 def get_all_vaccination():
-    token = get_m2m_token()  # Decorators
     headers = {'authorization': 'bearer ' + token}
 
     # First request to get the URL to TileJSON resource 
@@ -95,8 +101,8 @@ def get_all_vaccination():
 # Endpoint example to return data using the SQL API (JSON format)
 # Takes care of authentication/authorization
 @app.route('/api/v1/stores/average-revenue', methods=['GET'])
+@get_m2m_token
 def get_average_revenue():
-    token = get_m2m_token()
     headers = {'authorization': 'bearer ' + token}
 
     r = requests.get(
