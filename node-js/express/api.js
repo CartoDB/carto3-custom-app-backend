@@ -86,9 +86,16 @@ app.get('/api/v1/stores/all', getAuthHeaders, async (req, res) => {
   );
 
   // Second request to get the actual GeoJSON data
-  const secondResponse = await axios.get(firstResponse.data.geojson.url[0], { headers: headers });
+  const secondResponse = await axios.get(
+    firstResponse.data.geojson.url[0], 
+    { 
+      headers: headers,
+      responseType: 'stream'
+    }
+  );
 
-  return res.send(secondResponse.data); 
+  // Pipe the response from the Maps API 
+  return secondResponse.data.pipe(res);
 });
 
 // Endpoint example to return data using the TileJSON format
@@ -105,9 +112,16 @@ app.get('/api/v1/vaccination/all', getAuthHeaders, async (req, res) => {
   );
 
   // Second request to get the actual TileJSON data
-  const secondResponse = await axios.get(firstResponse.data.tilejson.url[0], { headers: headers });
+  const secondResponse = await axios.get(
+    firstResponse.data.tilejson.url[0], 
+    { 
+      headers: headers,
+      responseType: 'stream'
+    }
+  );
 
-  return res.send(secondResponse.data); 
+  // Pipe the response from the Maps API 
+  return secondResponse.data.pipe(res);
 });
 
 // Endpoint example to return data using the SQL API (JSON format)
@@ -119,10 +133,14 @@ app.get('/api/v1/stores/average-revenue', getAuthHeaders, async (req, res) => {
     process.env.SQL_API_BASE_URL + '/' +
     process.env.CONNECTION_NAME + '/' +
     'query?q=SELECT AVG(revenue) AS average_revenue FROM cartobq.public_account.retail_stores',
-    { headers: headers }
+    { 
+      headers: headers,
+      responseType: 'stream'
+    }
   );
 
-  return res.send(response.data);
+  // Pipe the response from the SQL API 
+  return response.data.pipe(res);
 });
 
 app.listen(port, () => {
