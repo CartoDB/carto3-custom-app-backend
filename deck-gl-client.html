@@ -14,7 +14,9 @@
   <script type="text/javascript">
 
     async function initialize() {
-      const response = await fetch('http://127.0.0.1:5000/api/v1/token');
+      const apiServerUrl = 'http://127.0.0.1:5000';   // Python Flask
+      // const apiServerUrl = 'http://localhost:3000';   // Node.js Express
+      const response = await fetch(apiServerUrl + '/api/v1/token');
       const data = await response.json();
       deck.carto.setDefaultCredentials({
         accessToken: data.token
@@ -35,7 +37,7 @@
         layers: [
           new deck.MVTLayer({
             id: 'vaccination',
-            data: 'http://127.0.0.1:5000/api/v1/vaccination/all', 
+            data: apiServerUrl + '/api/v1/vaccination/all', 
             getFillColor: [77, 238, 238],
             pointRadiusMinPixels: 1.5
           }),
@@ -49,7 +51,7 @@
           }),
           new deck.GeoJsonLayer({
             id: 'stores',
-            data: 'http://127.0.0.1:5000/api/v1/stores/all', 
+            data: apiServerUrl + '/api/v1/stores/all', 
             getFillColor: [238, 180, 90],
             pointRadiusMinPixels: 2.5
           }),
