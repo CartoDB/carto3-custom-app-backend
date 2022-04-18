@@ -1,4 +1,5 @@
-import axios from "axios";
+import axios from 'axios';
+import cors from 'cors';
 import 'dotenv/config'; 
 import express from 'express';
 import jwksClient from 'jwks-rsa';
@@ -6,6 +7,8 @@ import jwt from 'jsonwebtoken';
 
 const app = express();
 const port = 3000;
+
+app.use(cors());
 
 let token = null;
 let publicKey = null;
