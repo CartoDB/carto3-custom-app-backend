@@ -97,6 +97,9 @@ app.get('/api/v1/stores/all', getAuthHeaders, async (req, res) => {
     }
   );
 
+  // Set the content type header
+  res.set('Content-Type', secondResponse.headers['content-type']);
+
   // Pipe the response from the Maps API 
   return secondResponse.data.pipe(res);
 });
@@ -123,6 +126,9 @@ app.get('/api/v1/vaccination/all', getAuthHeaders, async (req, res) => {
     }
   );
 
+  // Set the content type header
+  res.set('Content-Type', secondResponse.headers['content-type']);
+
   // Pipe the response from the Maps API 
   return secondResponse.data.pipe(res);
 });
@@ -141,6 +147,9 @@ app.get('/api/v1/stores/average-revenue', getAuthHeaders, async (req, res) => {
       responseType: 'stream'
     }
   );
+
+  // Set the content type header
+  res.set('Content-Type', response.headers['content-type']);
 
   // Pipe the response from the SQL API 
   return response.data.pipe(res);
