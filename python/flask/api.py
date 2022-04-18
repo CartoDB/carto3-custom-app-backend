@@ -30,8 +30,7 @@ def get_new_m2m_token():
     response = r.json()
     return response["access_token"]      
 
-# Decorator to retrieve the token
-# Returns a new token or an existing token if we already have one and it has not expired
+# Decorator to retrieve a new token or update the existing one if needed
 def get_m2m_token(func):
     @functools.wraps(func)
     def wrapper_get_m2m_token(*args, **kwargs):
@@ -44,7 +43,6 @@ def get_m2m_token(func):
                 jwt.decode(token, options={"verify_signature": False})
             except jwt.ExpiredSignatureError:
                 token = get_new_m2m_token()
-        # return token
         return func(*args, **kwargs)
     return wrapper_get_m2m_token
 
@@ -57,7 +55,6 @@ def get_token():
     return jsonify({'token': token})
 
 # Endpoint example to return data using the GeoJSON format
-# Takes care of authentication/authorization
 @app.route('/api/v1/stores/all', methods=['GET'])
 @get_m2m_token
 def get_all_stores():
@@ -78,7 +75,6 @@ def get_all_stores():
     return r.json()
 
 # Endpoint example to return data using the TileJSON format
-# Takes care of authentication/authorization
 @app.route('/api/v1/vaccination/all', methods=['GET'])
 @get_m2m_token
 def get_all_vaccination():
@@ -99,7 +95,6 @@ def get_all_vaccination():
     return r.json()
 
 # Endpoint example to return data using the SQL API (JSON format)
-# Takes care of authentication/authorization
 @app.route('/api/v1/stores/average-revenue', methods=['GET'])
 @get_m2m_token
 def get_average_revenue():
