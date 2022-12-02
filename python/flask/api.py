@@ -115,13 +115,6 @@ def get_average_revenue():
 def get_tile_table(z, x, y):
     headers = {'Authorization': 'Bearer ' + token}
 
-    # https://gcp-us-east1.api.carto.com/v3/maps/bigquery/table/4/2/6?
-    # name=cartobq.public_account.retail_stores&
-    # cache=1626210466192&
-    # geomType=points&
-    # geo_column=&
-    # formatTiles=binary&
-    # v=3.1
     url = (
       os.environ.get('MAPS_API_BASE_URL') + '/' +
       os.environ.get('CONNECTION_NAME') + '/' +
@@ -130,8 +123,8 @@ def get_tile_table(z, x, y):
       '&cache=' + flask.request.args.get('cache', '') +
       '&geomType=' + flask.request.args.get('geomType', '') +
       '&geo_column=' + flask.request.args.get('geo_column', '') +
-      '&formatTiles=binary' +
-      '&v=3.1'
+      '&formatTiles=' + flask.request.args.get('geo_column', 'binary') +
+      '&v=' + flask.request.args.get('v', '3.0')
     )
 
     r = requests.get(url, headers=headers)
@@ -153,16 +146,8 @@ def get_tile_table(z, x, y):
 @app.route('/api/v1/tile/query/<z>/<x>/<y>', methods=['GET'])
 @get_m2m_token
 def get_tile_query(z, x, y):
-    headers = {'authorization': 'bearer ' + token}
+    headers = {'Authorization': 'Bearer ' + token}
 
-    # https://qa-onprem.carto.io/api/v3/maps/pgconnection_dev_6194/
-    # query/4/9/4?
-    # q=SELECT%20*%0AFROM%20carto_dev_data.demo_tables.airports&
-    # cache=1669999726876&
-    # geomType=points&
-    # geo_column=&
-    # formatTiles=mvt&
-    # v=3.1
     url = (
       os.environ.get('MAPS_API_BASE_URL') + '/' +
       os.environ.get('CONNECTION_NAME') + '/' +
@@ -171,8 +156,8 @@ def get_tile_query(z, x, y):
       '&cache=' + flask.request.args.get('cache', '') +
       '&geomType=' + flask.request.args.get('geomType', '') +
       '&geo_column=' + flask.request.args.get('geo_column', '') +
-      '&formatTiles=mvt' +
-      '&v=3.1'
+      '&formatTiles=' + flask.request.args.get('geo_column', 'binary') +
+      '&v=' + flask.request.args.get('v', '3.0')
     )
 
     r = requests.get(url, headers=headers)
