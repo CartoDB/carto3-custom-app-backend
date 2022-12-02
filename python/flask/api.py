@@ -109,4 +109,80 @@ def get_average_revenue():
     
     return r.json()
 
+# Endpoint example for proxying tile requests (table)
+@app.route('/api/v1/tile/table/<z>/<x>/<y>', methods=['GET'])
+@get_m2m_token
+def get_tile_table(z, x, y):
+    headers = {'Authorization': 'Bearer ' + token}
+
+    # https://gcp-us-east1.api.carto.com/v3/maps/bigquery/table/4/2/6?
+    # name=cartobq.public_account.retail_stores&
+    # cache=1626210466192&
+    # geomType=points&
+    # geo_column=&
+    # formatTiles=binary&
+    # v=3.1
+    url = (
+      os.environ.get('MAPS_API_BASE_URL') + '/' +
+      os.environ.get('CONNECTION_NAME') + '/' +
+      f'table/{z}/{x}/{y}' +
+      '?name=' + flask.request.args.get('name') +
+      '&cache=' + flask.request.args.get('cache', '') +
+      '&geomType=' + flask.request.args.get('geomType', '') +
+      '&geo_column=' + flask.request.args.get('geo_column', '') +
+      '&formatTiles=binary' +
+      '&v=3.1'
+    )
+
+    r = requests.get(url, headers=headers)
+
+    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+    headers = [(name, value) for (name, value) in r.raw.headers.items()
+               if name.lower() not in excluded_headers]
+
+    # Download response
+    # response = flask.Response(r.content, r.status_code, headers)
+
+    # Stream response
+    headers.append(('Transfer-Encoding', 'chunked'))
+    response = flask.Response(r.iter_content(chunk_size=10*1024), r.status_code, headers)
+
+    return response
+    
+# Endpoint example for proxying tile requests (query)
+@app.route('/api/v1/tile/query/<z>/<x>/<y>', methods=['GET'])
+@get_m2m_token
+def get_tile_query(z, x, y):
+    headers = {'authorization': 'bearer ' + token}
+
+    # https://qa-onprem.carto.io/api/v3/maps/pgconnection_dev_6194/
+    # query/4/9/4?
+    # q=SELECT%20*%0AFROM%20carto_dev_data.demo_tables.airports&
+    # cache=1669999726876&
+    # geomType=points&
+    # geo_column=&
+    # formatTiles=mvt&
+    # v=3.1
+    url = (
+      os.environ.get('MAPS_API_BASE_URL') + '/' +
+      os.environ.get('CONNECTION_NAME') + '/' +
+      f'query/{z}/{x}/{y}' +
+      '?q=' + flask.request.args.get('q') +
+      '&cache=' + flask.request.args.get('cache', '') +
+      '&geomType=' + flask.request.args.get('geomType', '') +
+      '&geo_column=' + flask.request.args.get('geo_column', '') +
+      '&formatTiles=mvt' +
+      '&v=3.1'
+    )
+
+    r = requests.get(url, headers=headers)
+
+    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+    headers = [(name, value) for (name, value) in r.raw.headers.items()
+               if name.lower() not in excluded_headers]
+
+    response = flask.Response(r.content, r.status_code, headers)
+
+    return response
+
 app.run()
