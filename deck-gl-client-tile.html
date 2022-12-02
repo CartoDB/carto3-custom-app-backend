@@ -13,7 +13,7 @@
 
   <script type="text/javascript">
     let layer;
-    
+
     async function initialize() {
       const apiServerUrl = 'http://127.0.0.1:5000';   // Python Flask
       // const apiServerUrl = 'http://localhost:3000';   // Node.js Express
@@ -24,9 +24,11 @@
         data:
           apiServerUrl +
           '/api/v1/tile/table/{z}/{x}/{y}' +
-          '?name=cartobq.public_account.retail_stores' +
+          '?name=carto_dev_data.demo_tables.retail_stores' +
           '&cache=1626210466192' +
-          '&geomType=points',
+          '&geomType=points' +
+          '&formatTiles=mvt' +
+          '&v=3.1',
         getFillColor: [77, 238, 238],
         pointRadiusMinPixels: 1.5
       });
