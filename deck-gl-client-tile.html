@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <script src="https://unpkg.com/deck.gl@^8.8.0/dist.min.js"></script>
+    <script src="https://unpkg.com/@deck.gl/carto@^8.8.0/dist.min.js"></script>
+    
+    <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+  </head>
+
+  <body style="margin: 0; padding: 0">
+    <div id="map" style="width: 100vw; height: 100vh;"></div>
+  </body>
+
+  <script type="text/javascript">
+    let layer;
+    
+    async function initialize() {
+      const apiServerUrl = 'http://127.0.0.1:5000';   // Python Flask
+      // const apiServerUrl = 'http://localhost:3000';   // Node.js Express
+
+      layer = new deck.MVTLayer({
+        id: 'airports',
+        // data: apiServerUrl + '/api/v1/tile/query/{z}/{x}/{y}?q=SELECT * FROM cartobq.public_account.retail_stores', 
+        data:
+          apiServerUrl +
+          '/api/v1/tile/table/{z}/{x}/{y}' +
+          '?name=cartobq.public_account.retail_stores' +
+          '&cache=1626210466192' +
+          '&geomType=points',
+        getFillColor: [77, 238, 238],
+        pointRadiusMinPixels: 1.5
+      });
+
+      const deckgl = new deck.DeckGL({
+        container: 'map',
+        map: maplibregl,
+        mapStyle: deck.carto.BASEMAP.VOYAGER,
+
+        initialViewState: {
+          latitude: 40,
+          longitude: -100,
+          zoom: 4,
+        },
+        controller: true,
+
+        layers: [layer]
+      });
+
+    }
+
+    initialize();
+  </script>
+</html>
