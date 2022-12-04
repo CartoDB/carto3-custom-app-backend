@@ -1,5 +1,6 @@
 import os
 import functools
+from urllib.parse import urlparse
 
 import flask
 import jwt
@@ -58,7 +59,7 @@ def get_token():
 @app.route('/api/v1/stores/all', methods=['GET'])
 @get_m2m_token
 def get_all_stores():
-    headers = {'authorization': 'bearer ' + token}
+    headers = {'Authorization': 'Bearer ' + token}
 
     # First request to get the URL to GeoJSON resource 
     r = requests.get(
@@ -78,7 +79,7 @@ def get_all_stores():
 @app.route('/api/v1/vaccination/all', methods=['GET'])
 @get_m2m_token
 def get_all_vaccination():
-    headers = {'authorization': 'bearer ' + token}
+    headers = {'Authorization': 'Bearer ' + token}
 
     # First request to get the URL to TileJSON resource 
     r = requests.get(
@@ -98,7 +99,7 @@ def get_all_vaccination():
 @app.route('/api/v1/stores/average-revenue', methods=['GET'])
 @get_m2m_token
 def get_average_revenue():
-    headers = {'authorization': 'bearer ' + token}
+    headers = {'Authorization': 'Bearer ' + token}
 
     r = requests.get(
       os.environ.get('SQL_API_BASE_URL') + '/' +
@@ -108,6 +109,78 @@ def get_average_revenue():
     )
     
     return r.json()
+
+# Endpoint example to return the TileJSON document for a table
+# transforming the tiles template to point to the custom API
+@app.route('/api/v1/table', methods=['GET'])
+@get_m2m_token
+def get_tilejson_table():
+    headers = {'Authorization': 'Bearer ' + token}
+
+    url = (
+        os.environ.get('MAPS_API_BASE_URL') + '/' +
+        os.environ.get('CONNECTION_NAME') + '/' +
+        'table' +
+        '?name=' + flask.request.args.get('name') +
+        '&geo_column=' + flask.request.args.get('geo_column', '') +
+        '&formatTiles=' + flask.request.args.get('formatTiles', 'binary') +
+        '&v=' + flask.request.args.get('v', '3.0')
+    )
+
+    # First request to get the URL to TileJSON resource 
+    r = requests.get(url, headers=headers)
+    response = r.json()
+
+    # Second request to get the actual TileJSON data
+    r = requests.get(response["tilejson"]["url"][0], headers=headers)
+
+    # Update the tiles template to point to our custom API endpoints
+    tilejson = r.json()
+    parsedUrl = urlparse(tilejson['tiles'][0])
+    tilejson['tiles'] = (
+        flask.request.url_root + 
+        'api/v1/tile/table/{z}/{x}/{y}?' +
+        parsedUrl.query
+    )
+
+    return tilejson
+
+
+# Endpoint example to return the TileJSON document for a query
+# transforming the tiles template to point to the custom API
+@app.route('/api/v1/query', methods=['GET'])
+@get_m2m_token
+def get_tilejson_query():
+    headers = {'Authorization': 'Bearer ' + token}
+
+    url = (
+        os.environ.get('MAPS_API_BASE_URL') + '/' +
+        os.environ.get('CONNECTION_NAME') + '/' +
+        'query' +
+        '?q=' + flask.request.args.get('q') +
+        '&geo_column=' + flask.request.args.get('geo_column', '') +
+        '&formatTiles=' + flask.request.args.get('formatTiles', 'binary') +
+        '&v=' + flask.request.args.get('v', '3.0')
+    )
+
+    # First request to get the URL to TileJSON resource 
+    r = requests.get(url, headers=headers)
+    response = r.json()
+
+    # Second request to get the actual TileJSON data
+    r = requests.get(response["tilejson"]["url"][0], headers=headers)
+
+    # Update the tiles template to point to our custom API endpoints
+    tilejson = r.json()
+    parsedUrl = urlparse(tilejson['tiles'][0])
+    tilejson['tiles'] = (
+        flask.request.url_root + 
+        'api/v1/tile/query/{z}/{x}/{y}?' +
+        parsedUrl.query.replace("binary", "mvt")
+    )
+
+    return tilejson
+
 
 # Endpoint example for proxying tile requests (table)
 @app.route('/api/v1/tile/table/<z>/<x>/<y>', methods=['GET'])
@@ -123,7 +196,7 @@ def get_tile_table(z, x, y):
       '&cache=' + flask.request.args.get('cache', '') +
       '&geomType=' + flask.request.args.get('geomType', '') +
       '&geo_column=' + flask.request.args.get('geo_column', '') +
-      '&formatTiles=' + flask.request.args.get('geo_column', 'binary') +
+      '&formatTiles=' + flask.request.args.get('formatTiles', 'binary') +
       '&v=' + flask.request.args.get('v', '3.0')
     )
 
@@ -156,7 +229,7 @@ def get_tile_query(z, x, y):
       '&cache=' + flask.request.args.get('cache', '') +
       '&geomType=' + flask.request.args.get('geomType', '') +
       '&geo_column=' + flask.request.args.get('geo_column', '') +
-      '&formatTiles=' + flask.request.args.get('geo_column', 'binary') +
+      '&formatTiles=' + flask.request.args.get('formatTiles', 'binary') +
       '&v=' + flask.request.args.get('v', '3.0')
     )
 
@@ -166,7 +239,9 @@ def get_tile_query(z, x, y):
     headers = [(name, value) for (name, value) in r.raw.headers.items()
                if name.lower() not in excluded_headers]
 
-    response = flask.Response(r.content, r.status_code, headers)
+    # Stream response
+    headers.append(('Transfer-Encoding', 'chunked'))
+    response = flask.Response(r.iter_content(chunk_size=10*1024), r.status_code, headers)
 
     return response
 
