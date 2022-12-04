@@ -19,14 +19,19 @@
       // const apiServerUrl = 'http://localhost:3000';   // Node.js Express
 
       layer = new deck.MVTLayer({
-        id: 'airports',
-        // data: apiServerUrl + '/api/v1/tile/query/{z}/{x}/{y}?q=SELECT * FROM cartobq.public_account.retail_stores', 
-        data:
-          apiServerUrl +
-          '/api/v1/tile/table/{z}/{x}/{y}' +
-          '?name=carto_dev_data.demo_tables.retail_stores' +
-          '&cache=1626210466192' +
-          '&geomType=points' +
+        id: 'stores',
+        // Table
+        // data: 
+        //   apiServerUrl + 
+        //   '/api/v1/table' + 
+        //   '?name=carto_dev_data.demo_tables.retail_stores' +
+        //   '&formatTiles=mvt' +
+        //   '&v=3.1',
+        // Query
+        data: 
+          apiServerUrl + 
+          '/api/v1/query' + 
+          '?q=select * from carto_dev_data.demo_tables.retail_stores' +
           '&formatTiles=mvt' +
           '&v=3.1',
         getFillColor: [77, 238, 238],
