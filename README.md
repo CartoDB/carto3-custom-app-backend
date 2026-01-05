@@ -1,3 +1,17 @@
+# ⚠️ ARCHIVED - This repository is no longer maintained
+
+**This repository has been archived and is no longer actively maintained.**
+
+This project was last updated on 2023-02-16 and is preserved for historical reference only.
+
+- 🔒 **Read-only**: No new issues, pull requests, or changes will be accepted
+- 📦 **No support**: This code is provided as-is with no support or updates
+- 🔍 **For reference only**: You may fork this repository if you wish to continue development
+
+For current CARTO projects and actively maintained repositories, please visit: https://github.com/CartoDB
+
+---
+
 # CARTO 3 Custom App Backend
 
 This repository contains different examples for implementing a custom backend API with the new version of the CARTO platform launched on October 2021.
